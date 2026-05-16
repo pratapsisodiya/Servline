@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
@@ -48,14 +51,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION"
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}-${{ github.run_number }}
-          release_name: Servline v${{ steps.version.outputs.VERSION }} Build ${{ github.run_number }}
+          name: Servline v${{ steps.version.outputs.VERSION }} Build ${{ github.run_number }}
           body: |
             ## Servline Queue Management App
 
@@ -77,46 +77,11 @@ jobs:
             - Date: ${{ github.event.head_commit.timestamp }}
           draft: false
           prerelease: false
-
-      - name: Upload ARM64 APK
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-          asset_name: servline-arm64-v8a-v${{ steps.version.outputs.VERSION }}.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload ARMv7 APK
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-          asset_name: servline-armeabi-v7a-v${{ steps.version.outputs.VERSION }}.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload x86_64 APK
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-x86_64-release.apk
-          asset_name: servline-x86_64-v${{ steps.version.outputs.VERSION }}.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload App Bundle
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/bundle/release/app-release.aab
-          asset_name: servline-v${{ steps.version.outputs.VERSION }}.aab
-          asset_content_type: application/octet-stream
+          files: |
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            build/app/outputs/flutter-apk/app-x86_64-release.apk
+            build/app/outputs/bundle/release/app-release.aab
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
