@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// App color palette - consistent colors across the app
 class AppColors {
-  // Primary Blue
-  static const Color primary = Color(0xFF3B82F6);
-  static const Color primaryDark = Color(0xFF2563EB);
-  static const Color primaryLight = Color(0xFFEFF6FF);
+  // Primary Purple
+  static const Color primary = Color(0xFF8B5CF6);
+  static const Color primaryDark = Color(0xFF7C3AED);
+  static const Color primaryLight = Color(0xFFF5F3FF);
 
   // Background Colors
   static const Color background = Color(0xFFF8FAFC);
@@ -24,8 +24,8 @@ class AppColors {
   static const Color warningLight = Color(0xFFFEF3C7);
   static const Color error = Color(0xFFEF4444);
   static const Color errorLight = Color(0xFFFEE2E2);
-  static const Color info = Color(0xFF3B82F6);
-  static const Color infoLight = Color(0xFFDBEAFE);
+  static const Color info = Color(0xFF8B5CF6);
+  static const Color infoLight = Color(0xFFEDE9FE);
 
   // Border & Divider
   static const Color border = Color(0xFFE2E8F0);
@@ -147,7 +147,7 @@ class AppRadius {
 class AppShadows {
   static List<BoxShadow> get card => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.04),
+      color: Colors.black.withValues(alpha: 0.04),
       blurRadius: 20,
       offset: const Offset(0, 10),
     ),
@@ -155,7 +155,7 @@ class AppShadows {
 
   static List<BoxShadow> get cardSmall => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.02),
+      color: Colors.black.withValues(alpha: 0.02),
       blurRadius: 10,
       offset: const Offset(0, 4),
     ),
@@ -163,7 +163,7 @@ class AppShadows {
 
   static List<BoxShadow> get bottomNav => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withValues(alpha: 0.05),
       blurRadius: 20,
       offset: const Offset(0, -5),
     ),

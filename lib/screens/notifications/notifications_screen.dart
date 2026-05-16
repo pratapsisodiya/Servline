@@ -6,7 +6,6 @@ import 'package:servline/core/theme/app_theme.dart';
 import 'package:servline/models/notification.dart';
 import 'package:servline/providers/notification_provider.dart';
 import 'package:servline/widgets/notification_tile.dart';
-import 'package:servline/widgets/loading_overlay.dart';
 
 /// Notifications Hub Screen - as per design screenshot
 class NotificationsScreen extends ConsumerStatefulWidget {

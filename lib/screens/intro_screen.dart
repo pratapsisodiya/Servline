@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:servline/main.dart'; // Import main to navigate to Home/Auth
+import 'package:go_router/go_router.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -49,14 +49,7 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   void _onFinish() {
-    // Navigate to Home or Login
-    // For now, replacing with MyHomePage from main.dart or similar placeholder
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MyHomePage(title: 'Silent Queue Home'),
-      ),
-    );
+    context.go('/login');
   }
 
   @override

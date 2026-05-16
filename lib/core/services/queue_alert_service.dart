@@ -15,6 +15,7 @@ class QueueAlertService {
   int? _lastKnownPosition;
 
   /// Initialize the alert service
+  /// 
   Future<void> initialize() async {
     if (_isInitialized) return;
 

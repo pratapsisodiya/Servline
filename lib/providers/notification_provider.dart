@@ -172,8 +172,9 @@ class NotificationNotifier extends Notifier<NotificationState> {
   }
 
   /// Subscribe to new notifications
-  void _subscribeToNotifications(String userId) {
-    _subscription?.close();
+  Future<void> _subscribeToNotifications(String userId) async {
+    await _subscription?.close();
+    _subscription = null;
     _subscription = _notifRepo.subscribeToNotifications(userId, (
       newNotification,
     ) {

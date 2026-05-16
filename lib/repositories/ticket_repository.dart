@@ -43,9 +43,9 @@ class TicketRepository {
           'tokenNumber': tokenNumber,
           'headCount': headCount,
           'currentQueuePosition': queuePosition,
-          'totalInQueue': queuePosition + 5, // Mock value
+          'totalInQueue': queuePosition,
           'estimatedWaitMinutes': scheduledTime == null
-              ? queuePosition * 5 * headCount
+              ? queuePosition * 5
               : 0,
           'status': scheduledTime != null
               ? TicketStatus.scheduled.value
@@ -211,6 +211,9 @@ class TicketRepository {
           completedAt: event.payload['completedAt'] != null
               ? DateTime.tryParse(event.payload['completedAt'])
               : null,
+          scheduledTime: event.payload['scheduledTime'] != null
+              ? DateTime.tryParse(event.payload['scheduledTime'])
+              : null,
           notifyBySms: event.payload['notifyBySms'] ?? false,
         );
         onUpdate(ticket);
@@ -223,8 +226,8 @@ class TicketRepository {
   /// Generate a token number
   String _generateTokenNumber() {
     final now = DateTime.now();
-    final number = (now.hour * 100 + now.minute * 10 + now.second % 10) % 100;
-    return number.toString().padLeft(2, '0');
+    final number = (now.hour * 1000 + now.minute * 100 + now.second) % 10000;
+    return number.toString().padLeft(4, '0');
   }
 
   /// Get current queue position for a service

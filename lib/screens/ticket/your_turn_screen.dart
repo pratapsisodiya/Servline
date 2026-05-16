@@ -42,20 +42,23 @@ class _YourTurnScreenState extends State<YourTurnScreen>
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
 
-    // Start vibration pattern
-    _startVibration();
+    // Start vibration pattern after init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startVibration();
+    });
   }
 
   Future<void> _startVibration() async {
-    // Check if device has vibrator
-    bool? hasVibrator = await Vibration.hasVibrator();
-    if (hasVibrator == true) {
-      // Vibrate with pattern: [wait, vibrate, wait, vibrate...]
-      // Pattern: vibrate 500ms, pause 200ms, vibrate 500ms, pause 200ms...
-      Vibration.vibrate(
-        pattern: [0, 500, 200, 500, 200, 500, 200, 1000],
-        intensities: [0, 255, 0, 255, 0, 255, 0, 255],
-      );
+    try {
+      bool? hasVibrator = await Vibration.hasVibrator();
+      if (hasVibrator == true && mounted) {
+        Vibration.vibrate(
+          pattern: [0, 500, 200, 500, 200, 500, 200, 1000],
+          intensities: [0, 255, 0, 255, 0, 255, 0, 255],
+        );
+      }
+    } catch (e) {
+      // Silently fail if vibration not supported
     }
   }
 
@@ -114,11 +117,11 @@ class _YourTurnScreenState extends State<YourTurnScreen>
                         height: 140,
                         width: 140,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                               blurRadius: 40,
                               spreadRadius: 10,
                             ),
@@ -154,7 +157,7 @@ class _YourTurnScreenState extends State<YourTurnScreen>
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 16,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             height: 1.5,
                           ),
                         ),
@@ -173,7 +176,7 @@ class _YourTurnScreenState extends State<YourTurnScreen>
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(

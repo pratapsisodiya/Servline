@@ -14,8 +14,7 @@ class AppwriteService {
   AppwriteService._() {
     _client = Client()
         .setEndpoint(AppwriteConfig.endpoint)
-        .setProject(AppwriteConfig.projectId)
-        .setSelfSigned(status: true); // Remove in production
+        .setProject(AppwriteConfig.projectId);
 
     _account = Account(_client);
     _databases = Databases(_client);

@@ -146,7 +146,7 @@ class _WelcomeIntroScreenState extends State<WelcomeIntroScreen> {
                                         BoxShadow(
                                           color: const Color(
                                             0xFF3B82F6,
-                                          ).withOpacity(0.1),
+                                          ).withValues(alpha: 0.1),
                                           blurRadius: 40,
                                           offset: const Offset(0, 10),
                                         ),

@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:servline/models/feedback.dart';
 import 'package:servline/providers/auth_provider.dart';
 import 'package:servline/repositories/feedback_repository.dart';
 

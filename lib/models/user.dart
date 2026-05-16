@@ -20,13 +20,18 @@ class User {
 
   /// Create User from Appwrite Account
   factory User.fromAppwriteUser(appwrite.User user) {
+    final isGuest = user.email.isEmpty;
     return User(
       id: user.$id,
-      email: user.email,
-      name: user.name.isNotEmpty ? user.name : user.email.split('@').first,
+      email: user.email.isNotEmpty ? user.email : 'guest@servline.app',
+      name: user.name.isNotEmpty
+          ? user.name
+          : (user.email.isNotEmpty
+                ? user.email.split('@').first
+                : 'Guest User'),
       phone: user.phone.isNotEmpty ? user.phone : null,
       createdAt: DateTime.tryParse(user.$createdAt),
-      isGuest: false,
+      isGuest: isGuest,
     );
   }
 
@@ -46,9 +51,10 @@ class User {
 
   /// Create guest user
   factory User.guest() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
     return User(
-      id: 'guest_${DateTime.now().millisecondsSinceEpoch}',
-      email: 'guest@servline.app',
+      id: 'guest_$timestamp',
+      email: 'guest_$timestamp@servline.local',
       name: 'Guest User',
       isGuest: true,
       createdAt: DateTime.now(),

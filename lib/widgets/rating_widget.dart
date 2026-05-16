@@ -63,7 +63,7 @@ class RatingWidget extends StatelessWidget {
                 height: isSelected ? 56 : 48,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Color.fromRGBO(color.red, color.green, color.blue, 0.2)
+                      ? color.withValues(alpha: 0.2)
                       : AppColors.surfaceLight,
                   shape: BoxShape.circle,
                   border: isSelected

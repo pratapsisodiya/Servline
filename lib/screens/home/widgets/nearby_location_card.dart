@@ -60,27 +60,31 @@ class NearbyLocationCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(
-                      '${location.distance} • ${location.type.displayName}',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: const Color(0xFF94A3B8),
+                    Flexible(
+                      child: Text(
+                        '${location.distance} • ${location.type.displayName}',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (location.hasPriorityQueue) ...[
                       const SizedBox(width: 6),
-                      Icon(
+                      const Icon(
                         Icons.accessibility_new,
                         size: 14,
-                        color: const Color(0xFF8B5CF6),
+                        color: Color(0xFF8B5CF6),
                       ),
                     ],
                     if (location.supportsAppointments) ...[
                       const SizedBox(width: 4),
-                      Icon(
+                      const Icon(
                         Icons.calendar_today,
                         size: 14,
-                        color: const Color(0xFF3B82F6),
+                        color: Color(0xFF3B82F6),
                       ),
                     ],
                   ],

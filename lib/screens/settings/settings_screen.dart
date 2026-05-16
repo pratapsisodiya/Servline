@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:servline/providers/settings_provider.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsAsync = ref.watch(settingsProvider);
+    final notifier = ref.read(settingsProvider.notifier);
 
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notificationSounds = true;
-  bool _vibration = true;
-  bool _darkMode = false;
-  double _textSize = 1.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+    return settingsAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        body: Center(child: Text('Error: $error')),
+      ),
+      data: (settings) => Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
@@ -72,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Text(
-                          '${(_textSize * 100).toInt()}%',
+                          '${(settings.textSize * 100).toInt()}%',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             color: const Color(0xFF64748B),
@@ -91,13 +93,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         Expanded(
                           child: Slider(
-                            value: _textSize,
+                            value: settings.textSize,
                             min: 0.8,
                             max: 1.4,
                             divisions: 6,
                             activeColor: const Color(0xFF3B82F6),
                             onChanged: (value) {
-                              setState(() => _textSize = value);
+                              notifier.setTextSize(value);
                             },
                           ),
                         ),
@@ -128,8 +130,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.notifications_active,
                 iconColor: Colors.blue,
                 title: 'Notification Sounds',
-                value: _notificationSounds,
-                onChanged: (v) => setState(() => _notificationSounds = v),
+                value: settings.notificationSounds,
+                onChanged: (v) => notifier.toggleNotificationSounds(v),
               ),
               const Padding(
                 padding: EdgeInsets.only(left: 56),
@@ -139,8 +141,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.vibration,
                 iconColor: Colors.purple,
                 title: 'Vibration',
-                value: _vibration,
-                onChanged: (v) => setState(() => _vibration = v),
+                value: settings.vibration,
+                onChanged: (v) => notifier.toggleVibration(v),
               ),
             ]),
 
@@ -164,8 +166,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.dark_mode,
                 iconColor: Colors.black,
                 title: 'Dark Mode',
-                value: _darkMode,
-                onChanged: (v) => setState(() => _darkMode = v),
+                value: settings.darkMode,
+                onChanged: (v) => notifier.toggleDarkMode(v),
               ),
             ]),
 
@@ -200,6 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -227,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -248,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: iconColor, size: 20),
@@ -281,7 +284,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: iconColor, size: 20),

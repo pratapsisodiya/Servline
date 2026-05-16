@@ -15,7 +15,7 @@ class NotificationAccessScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              context.push('/location-access');
+              context.go('/location-access');
             },
             child: Text(
               'Skip',
@@ -57,7 +57,7 @@ class NotificationAccessScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -127,7 +127,7 @@ class NotificationAccessScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF22C55E).withOpacity(0.3),
+                    color: const Color(0xFF22C55E).withValues(alpha: 0.3),
                     spreadRadius: 0,
                     blurRadius: 20,
                     offset: const Offset(0, 10),

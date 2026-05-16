@@ -94,10 +94,12 @@ class NearbyLocationsScreen extends ConsumerWidget {
                 final location = locations[index];
                 return Column(
                   children: [
-                    NearbyLocationCard(location: location),
-                    const SizedBox(
-                      height: 16,
-                    ), // Extra spacing not needed if card has margin
+                    GestureDetector(
+                      onTap: () =>
+                          context.go('/home/select-service/${location.id}'),
+                      child: NearbyLocationCard(location: location),
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 );
               },

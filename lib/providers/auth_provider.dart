@@ -67,7 +67,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = AuthState.authenticated(user);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = AuthState.error(e.toString());
       return false;
     }
   }

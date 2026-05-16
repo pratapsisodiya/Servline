@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:servline/providers/location_provider.dart';
 import 'package:servline/providers/ticket_provider.dart';
+import 'package:servline/providers/auth_provider.dart';
 import 'package:servline/screens/home/widgets/nearby_location_card.dart';
 import 'package:servline/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -17,251 +18,217 @@ class HomeScreen extends ConsumerWidget {
     final ticketState = ref.watch(ticketProvider);
     final appointments = ticketState.appointments;
 
+    // Filter locations for Smart Picks (wait time < 30 mins)
+    final smartPicks = nearbyLocations
+        .where((loc) => loc.waitTimeMinutes < 30 && loc.isOpen)
+        .toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // Slate-50
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome back,',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                      Text(
-                        'Servline',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1E293B),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFE4E6), // Rose-100
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'SQ',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFE11D48), // Rose-600
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Scrollable Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Premium QR Scan Card
-                    _buildQRScanCard(context),
-
-                    // Upcoming Appointments
-                    if (appointments.isNotEmpty) ...[
-                      const SizedBox(height: 32),
-                      Text(
-                        'Upcoming Appointments',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ...appointments.map(
-                        (appointment) => Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: AppShadows.cardSmall,
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryLight,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      DateFormat(
-                                        'MMM',
-                                      ).format(appointment.scheduledTime!),
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
-                                    Text(
-                                      DateFormat(
-                                        'd',
-                                      ).format(appointment.scheduledTime!),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      appointment.serviceName,
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      appointment.locationName,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 13,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.access_time,
-                                          size: 14,
-                                          color: AppColors.textTertiary,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          DateFormat(
-                                            'h:mm a',
-                                          ).format(appointment.scheduledTime!),
-                                          style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            color: AppColors.textTertiary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 32),
-
-                    // Nearby Locations Section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Nearby Locations',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1E293B),
+                          'Welcome back,',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
-                        TextButton(
-                          onPressed: () => context.push('/nearby'),
-                          child: Text(
-                            'View All',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF3B82F6),
-                            ),
+                        Text(
+                          ref.watch(currentUserProvider)?.name ?? 'Guest',
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1E293B),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-
-                    // List of locations
-                    ...nearbyLocations.map(
-                      (location) => NearbyLocationCard(location: location),
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFE4E6), // Rose-100
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _getInitials(ref.watch(currentUserProvider)?.name),
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFE11D48), // Rose-600
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
                     ),
-
-                    const SizedBox(height: 100), // Bottom padding for scrolling
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          bottom: true,
-          child: SizedBox(
-            height: 70,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(context, Icons.home_filled, 'Home', true, null),
-                _buildNavItem(
-                  context,
-                  Icons.confirmation_number_outlined,
-                  'My Ticket',
-                  false,
-                  () => context.push('/active-ticket'),
+
+              // Tabs
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: TabBar(
+                    indicator: BoxDecoration(
+                      color: const Color(0xFF3B82F6),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: const Color(0xFF64748B),
+                    labelStyle: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                    tabs: const [
+                      Tab(text: 'Smart Picks'),
+                      Tab(text: 'All Locations'),
+                    ],
+                  ),
                 ),
-                _buildNavItem(
-                  context,
-                  Icons.history,
-                  'History',
-                  false,
-                  () => context.push('/history'),
+              ),
+              const SizedBox(height: 24),
+
+              // Tab View
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    // Smart Picks Tab
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (appointments.isNotEmpty) ...[
+                            Text(
+                              'Upcoming Appointments',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF1E293B),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ...appointments.map(
+                              (appointment) =>
+                                  _buildAppointmentCard(appointment),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+
+                          _buildQRScanCard(context),
+                          const SizedBox(height: 24),
+
+                          Text(
+                            'Smart Recommendations',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Locations with low wait times near you',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          if (smartPicks.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32.0),
+                                child: Text(
+                                  'No locations available right now.',
+                                  style: GoogleFonts.inter(color: Colors.grey),
+                                ),
+                              ),
+                            )
+                          else
+                            ...smartPicks.map(
+                              (location) =>
+                                  _buildLocationCard(context, location),
+                            ),
+
+                          const SizedBox(height: 80),
+                        ],
+                      ),
+                    ),
+
+                    // All Locations Tab
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildQRScanCard(context),
+                          const SizedBox(height: 24),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'All Locations',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF1E293B),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/home/nearby'),
+                                child: Text(
+                                  'View Map',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF3B82F6),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          ...nearbyLocations.map(
+                            (location) => _buildLocationCard(context, location),
+                          ),
+                          const SizedBox(height: 80),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -285,7 +252,7 @@ class HomeScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2563EB).withOpacity(0.4),
+            color: const Color(0xFF2563EB).withValues(alpha: 0.4),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -298,11 +265,11 @@ class HomeScreen extends ConsumerWidget {
             height: 80,
             width: 80,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -329,7 +296,7 @@ class HomeScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.85),
+              color: Colors.white.withValues(alpha: 0.85),
               height: 1.4,
             ),
           ),
@@ -370,35 +337,100 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNavItem(
-    BuildContext context,
-    IconData icon,
-    String label,
-    bool isActive,
-    VoidCallback? onTap,
-  ) {
+  String _getInitials(String? name) {
+    if (name == null || name.isEmpty) return 'G';
+    final parts = name.trim().split(' ');
+    if (parts.length > 1) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name[0].toUpperCase();
+  }
+
+  Widget _buildLocationCard(BuildContext context, dynamic location) {
     return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      onTap: () => context.go('/home/select-service/${location.id}'),
+      child: NearbyLocationCard(location: location),
+    );
+  }
+
+  Widget _buildAppointmentCard(dynamic appointment) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppShadows.cardSmall,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
         children: [
-          Icon(
-            icon,
-            color: isActive
-                ? const Color(0xFF3B82F6)
-                : const Color(0xFF94A3B8), // Blue-500 : Slate-400
-            size: 24,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  DateFormat('MMM').format(appointment.scheduledTime ?? DateTime.now()),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Text(
+                  DateFormat('d').format(appointment.scheduledTime ?? DateTime.now()),
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-              color: isActive
-                  ? const Color(0xFF3B82F6)
-                  : const Color(0xFF94A3B8),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  appointment.serviceName,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  appointment.locationName,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: AppColors.textTertiary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      DateFormat('h:mm a').format(appointment.scheduledTime!),
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

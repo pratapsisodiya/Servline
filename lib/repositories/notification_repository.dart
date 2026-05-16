@@ -4,7 +4,6 @@ import 'package:servline/core/config/appwrite_config.dart';
 import 'package:servline/core/services/appwrite_service.dart';
 import 'package:servline/models/notification.dart';
 
-/// Notification Repository - handles notification operations with Appwrite
 class NotificationRepository {
   final Databases _databases;
   final Realtime _realtime;
