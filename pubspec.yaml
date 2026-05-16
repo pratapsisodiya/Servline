@@ -66,6 +66,11 @@ dependencies:
   # Vibration for alerts
   vibration: ^3.1.1
 
+  # OTA Updates
+  package_info_plus: ^9.0.1
+  url_launcher: ^6.3.2
+  http: ^1.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

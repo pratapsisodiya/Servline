@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:servline/core/utils/update_checker.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainLayout({super.key, required this.navigationShell});
 
   @override
+  ConsumerState<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends ConsumerState<MainLayout> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateChecker.checkForUpdates(context, ref);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -52,9 +67,9 @@ class MainLayout extends StatelessWidget {
     String label,
     int index,
   ) {
-    final isActive = navigationShell.currentIndex == index;
+    final isActive = widget.navigationShell.currentIndex == index;
     return GestureDetector(
-      onTap: () => navigationShell.goBranch(
+      onTap: () => widget.navigationShell.goBranch(
         index,
         initialLocation: true,
       ),

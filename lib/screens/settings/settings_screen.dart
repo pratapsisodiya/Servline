@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:servline/providers/settings_provider.dart';
+import 'package:servline/providers/update_provider.dart';
+import 'package:servline/core/utils/update_checker.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -193,11 +195,33 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ]),
 
+            _buildSectionHeader('ABOUT'),
+            _buildSectionContainer([
+              _buildNavTile(
+                icon: Icons.system_update,
+                iconColor: const Color(0xFF3B82F6),
+                title: 'Check for Updates',
+                trailing: Consumer(
+                  builder: (context, ref, _) {
+                    final versionAsync = ref.watch(currentVersionProvider);
+                    return versionAsync.when(
+                      data: (version) => Text(
+                        version,
+                        style: GoogleFonts.inter(
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+                onTap: () => UpdateChecker.checkForUpdates(context, ref, force: true),
+              ),
+            ]),
+
             const SizedBox(height: 48),
-            Text(
-              'Servline v1.0.0 (34)',
-              style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 12),
-            ),
             const SizedBox(height: 48),
           ],
         ),
