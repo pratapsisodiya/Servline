@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vibration/vibration.dart';
+import 'package:servline/widgets/empty_queue_animation.dart';
 
 class YourTurnScreen extends StatefulWidget {
   const YourTurnScreen({super.key});
@@ -112,27 +113,8 @@ class _YourTurnScreenState extends State<YourTurnScreen>
                   scale: _scaleAnimation,
                   child: Column(
                     children: [
-                      // Checkmark icon with glow
-                      Container(
-                        height: 140,
-                        width: 140,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              blurRadius: 40,
-                              spreadRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.check_circle,
-                          size: 100,
-                          color: Colors.white,
-                        ),
-                      ),
+                      // Animated checkmark
+                      const QueueCompletedAnimation(size: 140),
 
                       const SizedBox(height: 40),
 

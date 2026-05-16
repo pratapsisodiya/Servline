@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:servline/models/ticket.dart';
 import 'package:servline/providers/ticket_provider.dart';
+import 'package:servline/widgets/empty_queue_animation.dart';
 
 class VisitHistoryScreen extends ConsumerStatefulWidget {
   const VisitHistoryScreen({super.key});
@@ -201,27 +202,17 @@ class _VisitHistoryScreenState extends ConsumerState<VisitHistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.history, size: 48, color: Colors.grey[400]),
+          const EmptyQueueAnimation(
+            size: 220,
+            message: 'No Visit History',
           ),
-          const SizedBox(height: 24),
-          Text(
-            'No Visits Yet',
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF1E293B),
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             'Your past visits will appear here.',
-            style: GoogleFonts.inter(color: const Color(0xFF64748B)),
+            style: GoogleFonts.inter(
+              color: const Color(0xFF64748B),
+              fontSize: 14,
+            ),
           ),
         ],
       ),

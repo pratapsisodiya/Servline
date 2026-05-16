@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:servline/models/ticket.dart';
 import 'package:servline/providers/ticket_provider.dart';
+import 'package:servline/widgets/queue_animation_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -390,6 +391,47 @@ class ActiveTicketScreen extends ConsumerWidget {
                                 ),
                               ),
                             ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Animated Queue Visualization
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Your Position in Queue',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          QueueAnimationWidget(
+                            peopleCount: ticket.totalInQueue,
+                            currentPosition: ticket.currentQueuePosition,
+                            size: 220,
+                          ),
+                          const SizedBox(height: 16),
+                          QueueProgressIndicator(
+                            current: ticket.currentQueuePosition,
+                            total: ticket.totalInQueue,
                           ),
                         ],
                       ),
