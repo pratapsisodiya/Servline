@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:servline/core/theme/app_theme.dart';
+import 'package:servline/providers/location_provider.dart';
 import 'package:servline/widgets/loading_overlay.dart';
 
-class QRScannerScreen extends StatefulWidget {
+class QRScannerScreen extends ConsumerStatefulWidget {
   const QRScannerScreen({super.key});
 
   @override
-  State<QRScannerScreen> createState() => _QRScannerScreenState();
+  ConsumerState<QRScannerScreen> createState() => _QRScannerScreenState();
 }
 
-class _QRScannerScreenState extends State<QRScannerScreen>
+class _QRScannerScreenState extends ConsumerState<QRScannerScreen>
     with WidgetsBindingObserver {
   final MobileScannerController controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
@@ -55,15 +57,14 @@ class _QRScannerScreenState extends State<QRScannerScreen>
     // Expected format: servline://location/{locationId}
     // Or just a raw location ID for simplicity
     if (code.startsWith('servline://location/') || code.length > 5) {
-      // Extract location ID
       String locationId = code;
       if (code.startsWith('servline://location/')) {
         locationId = code.replaceAll('servline://location/', '');
       }
 
-      // Navigate to select service for this location
       if (mounted) {
-        context.go('/select-service/$locationId');
+        await ref.read(locationProvider.notifier).loadLocationById(locationId);
+        if (mounted) context.go('/home/select-service/$locationId');
       }
     } else {
       // Invalid code

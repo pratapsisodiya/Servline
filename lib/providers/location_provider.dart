@@ -91,6 +91,18 @@ class LocationNotifier extends Notifier<LocationState> {
     }
   }
 
+  /// Load a location by ID, fetch it from Appwrite, then select it
+  Future<void> loadLocationById(String locationId) async {
+    if (state.selectedLocation?.id == locationId && state.services.isNotEmpty) return;
+    state = state.copyWith(isLoading: true, error: null, services: []);
+    try {
+      final location = await _locationRepo.getLocationById(locationId);
+      await selectLocation(location);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
   /// Clear selected location
   void clearSelection() {
     state = state.copyWith(clearSelectedLocation: true, services: []);
@@ -219,8 +231,8 @@ final selectedLocationProvider = Provider<LocationModel?>((ref) {
 final locationServicesProvider = Provider<List<ServiceModel>>((ref) {
   final state = ref.watch(locationProvider);
 
-  // Return mock services if Appwrite isn't configured
-  if (state.services.isEmpty && state.selectedLocation != null) {
+  // Return mock services only as fallback (no Appwrite connection) — not during loading
+  if (state.services.isEmpty && !state.isLoading && state.selectedLocation != null && state.error == null) {
     return [
       ServiceModel(
         id: '1',

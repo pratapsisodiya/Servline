@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:servline/core/utils/update_checker.dart';
+import 'package:servline/providers/ticket_provider.dart';
+import 'package:servline/providers/location_provider.dart';
 
 class MainLayout extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -19,6 +21,8 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       UpdateChecker.checkForUpdates(context, ref);
+      ref.read(ticketProvider.notifier).loadActiveTicket();
+      ref.read(locationProvider.notifier).loadNearbyLocations();
     });
   }
 

@@ -23,6 +23,17 @@ class SelectServiceScreen extends ConsumerStatefulWidget {
 class _SelectServiceScreenState extends ConsumerState<SelectServiceScreen> {
   int _headCount = 1;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locationState = ref.read(locationProvider);
+      if (locationState.selectedLocation?.id != widget.locationId) {
+        ref.read(locationProvider.notifier).loadLocationById(widget.locationId);
+      }
+    });
+  }
+
   void _incrementHeadCount() {
     if (_headCount < 10) {
       setState(() => _headCount++);
@@ -233,8 +244,17 @@ class _SelectServiceScreenState extends ConsumerState<SelectServiceScreen> {
                                               headCount: _headCount,
                                             );
 
-                                        if (success && context.mounted) {
-                                          context.go('/active-ticket');
+                                        if (context.mounted) {
+                                          if (success) {
+                                            context.go('/active-ticket');
+                                          } else {
+                                            final error = ref.read(ticketProvider).error;
+                                            if (error != null) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text(error), backgroundColor: AppColors.error),
+                                              );
+                                            }
+                                          }
                                         }
                                       },
                                     ),

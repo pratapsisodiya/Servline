@@ -23,6 +23,7 @@ import 'package:servline/screens/ticket/your_turn_screen.dart';
 import 'package:servline/screens/qr/qr_scanner_screen.dart';
 import 'package:servline/screens/appointment/schedule_appointment_screen.dart';
 import 'package:servline/screens/main_layout.dart';
+import 'package:servline/screens/queue/register_queue_screen.dart';
 
 import 'package:servline/providers/ticket_provider.dart';
 
@@ -152,6 +153,10 @@ GoRouter createRouter(WidgetRef ref) {
       GoRoute(
         path: '/scan-qr',
         builder: (context, state) => const QRScannerScreen(),
+      ),
+      GoRoute(
+        path: '/register-queue',
+        builder: (context, state) => const RegisterQueueScreen(),
       ),
       GoRoute(
         path: '/notifications',

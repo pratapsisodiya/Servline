@@ -100,6 +100,11 @@ class TicketNotifier extends Notifier<TicketState> {
     final user = ref.read(currentUserProvider);
     if (user == null) return false;
 
+    if (state.activeTicket != null) {
+      state = state.copyWith(error: 'You already have an active ticket. Cancel it first.');
+      return false;
+    }
+
     state = state.copyWith(isLoading: true, error: null);
     try {
       final ticket = await _ticketRepo.createTicket(

@@ -3,7 +3,12 @@
     "allow": [
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(flutter analyze *)",
+      "Bash(xargs grep -l \"queue\\\\|Queue\")",
+      "Bash(Get-ChildItem -Path \"D:\\\\Temp\\\\Servline\\\\servline\" -Recurse -File -Filter \"*.dart\")",
+      "Bash(Select-Object -First 50)",
+      "Bash(xargs grep -l \"scan.*history\\\\|recommendation\\\\|recent.*location\")"
     ]
   }
 }

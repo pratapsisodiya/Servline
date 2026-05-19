@@ -18,11 +18,6 @@ class HomeScreen extends ConsumerWidget {
     final ticketState = ref.watch(ticketProvider);
     final appointments = ticketState.appointments;
 
-    // Filter locations for Smart Picks (wait time < 30 mins)
-    final smartPicks = nearbyLocations
-        .where((loc) => loc.waitTimeMinutes < 30 && loc.isOpen)
-        .toList();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // Slate-50
       body: SafeArea(
@@ -65,14 +60,20 @@ class HomeScreen extends ConsumerWidget {
                         border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: Center(
-                        child: Text(
-                          _getInitials(ref.watch(currentUserProvider)?.name),
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFFE11D48), // Rose-600
-                            fontSize: 14,
-                          ),
-                        ),
+                        child: (ref.watch(currentUserProvider)?.isGuest ?? true)
+                            ? const Icon(
+                                Icons.face_3_rounded,
+                                size: 22,
+                                color: Color(0xFFE11D48),
+                              )
+                            : Text(
+                                _getInitials(ref.watch(currentUserProvider)?.name),
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFE11D48),
+                                  fontSize: 14,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -143,42 +144,9 @@ class HomeScreen extends ConsumerWidget {
                           ],
 
                           _buildQRScanCard(context),
-                          const SizedBox(height: 24),
-
-                          Text(
-                            'Smart Recommendations',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1E293B),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Locations with low wait times near you',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: const Color(0xFF64748B),
-                            ),
-                          ),
                           const SizedBox(height: 16),
 
-                          if (smartPicks.isEmpty)
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(32.0),
-                                child: Text(
-                                  'No locations available right now.',
-                                  style: GoogleFonts.inter(color: Colors.grey),
-                                ),
-                              ),
-                            )
-                          else
-                            ...smartPicks.map(
-                              (location) =>
-                                  _buildLocationCard(context, location),
-                            ),
-
+                          _buildRegisterQueueCard(context),
                           const SizedBox(height: 80),
                         ],
                       ),
@@ -347,9 +315,84 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildLocationCard(BuildContext context, dynamic location) {
+    return Consumer(
+      builder: (context, ref, _) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: GestureDetector(
+          onTap: () {
+            ref.read(locationProvider.notifier).selectLocation(location);
+            context.go('/home/select-service/${location.id}');
+          },
+          child: NearbyLocationCard(location: location),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegisterQueueCard(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go('/home/select-service/${location.id}'),
-      child: NearbyLocationCard(location: location),
+      onTap: () => context.push('/register-queue'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.list_alt_rounded,
+                color: Color(0xFF3B82F6),
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Join Without QR',
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Browse locations and register in a queue manually',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF3B82F6),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
