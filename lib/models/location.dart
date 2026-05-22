@@ -221,9 +221,10 @@ class LocationModel {
   final double? longitude;
   final String? imageUrl;
   final String? phone;
-  final String? qrCode; // For QR scanning feature
-  final bool hasPriorityQueue; // Priority queue support
-  final bool supportsAppointments; // Appointment booking support
+  final String? qrCode;
+  final bool hasPriorityQueue;
+  final bool supportsAppointments;
+  final String? ownerId; // userId of the admin who created this venue
 
   const LocationModel({
     required this.id,
@@ -242,6 +243,7 @@ class LocationModel {
     this.qrCode,
     this.hasPriorityQueue = false,
     this.supportsAppointments = false,
+    this.ownerId,
   });
 
   /// Create LocationModel from Appwrite Document
@@ -263,6 +265,7 @@ class LocationModel {
       qrCode: doc.data['qrCode'],
       hasPriorityQueue: doc.data['hasPriorityQueue'] ?? false,
       supportsAppointments: doc.data['supportsAppointments'] ?? false,
+      ownerId: doc.data['ownerId'],
     );
   }
 
@@ -284,6 +287,7 @@ class LocationModel {
       'qrCode': qrCode,
       'hasPriorityQueue': hasPriorityQueue,
       'supportsAppointments': supportsAppointments,
+      'ownerId': ownerId,
     };
   }
 
@@ -305,6 +309,7 @@ class LocationModel {
     String? qrCode,
     bool? hasPriorityQueue,
     bool? supportsAppointments,
+    String? ownerId,
   }) {
     return LocationModel(
       id: id ?? this.id,
@@ -323,6 +328,7 @@ class LocationModel {
       qrCode: qrCode ?? this.qrCode,
       hasPriorityQueue: hasPriorityQueue ?? this.hasPriorityQueue,
       supportsAppointments: supportsAppointments ?? this.supportsAppointments,
+      ownerId: ownerId ?? this.ownerId,
     );
   }
 

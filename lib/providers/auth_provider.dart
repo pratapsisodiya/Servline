@@ -59,6 +59,29 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Register new admin account (requires secret code)
+  Future<bool> registerAdmin(
+    String email,
+    String password,
+    String name,
+    String secretCode,
+  ) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final user = await _authRepo.createAdminAccount(
+        email: email,
+        password: password,
+        name: name,
+        secretCode: secretCode,
+      );
+      state = AuthState.authenticated(user);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
   /// Login as guest
   Future<bool> loginAsGuest() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -115,4 +138,9 @@ final currentUserProvider = Provider<User?>((ref) {
 /// Is logged in provider
 final isLoggedInProvider = Provider<bool>((ref) {
   return ref.watch(authProvider).isLoggedIn;
+});
+
+/// Is admin provider
+final isAdminProvider = Provider<bool>((ref) {
+  return ref.watch(currentUserProvider)?.isAdmin ?? false;
 });

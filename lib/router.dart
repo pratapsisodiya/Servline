@@ -22,6 +22,12 @@ import 'package:servline/screens/ticket/active_ticket_screen.dart';
 import 'package:servline/screens/ticket/your_turn_screen.dart';
 import 'package:servline/screens/qr/qr_scanner_screen.dart';
 import 'package:servline/screens/appointment/schedule_appointment_screen.dart';
+import 'package:servline/screens/admin/admin_dashboard_screen.dart';
+import 'package:servline/screens/admin/admin_signup_screen.dart';
+import 'package:servline/screens/admin/queue_operator_screen.dart';
+import 'package:servline/screens/admin/services_screen.dart';
+import 'package:servline/screens/admin/venue_form_screen.dart';
+import 'package:servline/screens/admin/venue_qr_screen.dart';
 import 'package:servline/screens/main_layout.dart';
 import 'package:servline/screens/queue/register_queue_screen.dart';
 
@@ -37,6 +43,7 @@ const _publicRoutes = [
   '/login',
   '/signup',
   '/forgot-password',
+  '/admin/signup',
 ];
 
 /// Create router with optional authentication redirect
@@ -47,6 +54,7 @@ GoRouter createRouter(WidgetRef ref) {
     redirect: (context, state) {
       final authState = ref.read(authProvider);
       final isLoggedIn = authState.isLoggedIn;
+      final isAdmin = ref.read(isAdminProvider);
       final currentPath = state.matchedLocation;
 
       // Allow public routes without authentication
@@ -57,6 +65,11 @@ GoRouter createRouter(WidgetRef ref) {
       // Redirect to login if not authenticated
       if (!isLoggedIn) {
         return '/login';
+      }
+
+      // Guard admin routes — non-admins get bounced to home
+      if (currentPath.startsWith('/admin') && !isAdmin) {
+        return '/home';
       }
 
       return null;
@@ -188,6 +201,48 @@ GoRouter createRouter(WidgetRef ref) {
             serviceId: serviceId,
             serviceName: serviceName,
           );
+        },
+      ),
+
+      // ── Admin routes ─────────────────────────────────────────────────────
+      GoRoute(
+        path: '/admin/signup',
+        builder: (context, state) => const AdminSignupScreen(),
+      ),
+      GoRoute(
+        path: '/admin/dashboard',
+        builder: (context, state) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/admin/venue/new',
+        builder: (context, state) => const VenueFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/venue/:id/edit',
+        builder: (context, state) {
+          final location = state.extra as dynamic;
+          return VenueFormScreen(location: location);
+        },
+      ),
+      GoRoute(
+        path: '/admin/venue/:id/qr',
+        builder: (context, state) {
+          final location = state.extra as dynamic;
+          return VenueQrScreen(location: location);
+        },
+      ),
+      GoRoute(
+        path: '/admin/venue/:id/services',
+        builder: (context, state) {
+          final location = state.extra as dynamic;
+          return ServicesScreen(location: location);
+        },
+      ),
+      GoRoute(
+        path: '/admin/venue/:id/operate',
+        builder: (context, state) {
+          final location = state.extra as dynamic;
+          return QueueOperatorScreen(location: location);
         },
       ),
     ],

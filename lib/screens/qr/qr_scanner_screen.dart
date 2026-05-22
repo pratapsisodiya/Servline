@@ -22,6 +22,12 @@ class _QRScannerScreenState extends ConsumerState<QRScannerScreen>
   bool _isProcessing = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!controller.value.isInitialized) return;
     switch (state) {
@@ -39,6 +45,7 @@ class _QRScannerScreenState extends ConsumerState<QRScannerScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     controller.dispose();
     super.dispose();
   }
@@ -54,28 +61,34 @@ class _QRScannerScreenState extends ConsumerState<QRScannerScreen>
 
     setState(() => _isProcessing = true);
 
-    // Expected format: servline://location/{locationId}
-    // Or just a raw location ID for simplicity
-    if (code.startsWith('servline://location/') || code.length > 5) {
-      String locationId = code;
-      if (code.startsWith('servline://location/')) {
-        locationId = code.replaceAll('servline://location/', '');
-      }
-
+    if (code.startsWith('servline://location/')) {
+      final locationId = code.replaceFirst('servline://location/', '');
       if (mounted) {
         await ref.read(locationProvider.notifier).loadLocationById(locationId);
-        if (mounted) context.go('/home/select-service/$locationId');
+        if (mounted) {
+          setState(() => _isProcessing = false);
+          context.go('/home/select-service/$locationId');
+        }
+      }
+    } else if (code.startsWith('servline://ticket/')) {
+      // Ticket QR scanned — show ticket info, no navigation needed for customers
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This is a customer ticket QR. Use the Active Token screen to view it.'),
+          ),
+        );
       }
     } else {
-      // Invalid code
+      // Not a Servline QR code
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Invalid QR Code. Please scan a Servline QR.'),
+            content: const Text('Invalid QR Code. Please scan a Servline venue QR.'),
             backgroundColor: AppColors.error,
           ),
         );
-        // Resume scanning after a delay
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) setState(() => _isProcessing = false);
         });

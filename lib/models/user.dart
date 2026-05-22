@@ -8,6 +8,7 @@ class User {
   final String? phone;
   final DateTime? createdAt;
   final bool isGuest;
+  final bool isAdmin;
 
   const User({
     required this.id,
@@ -16,10 +17,11 @@ class User {
     this.phone,
     this.createdAt,
     this.isGuest = false,
+    this.isAdmin = false,
   });
 
   /// Create User from Appwrite Account
-  factory User.fromAppwriteUser(appwrite.User user) {
+  factory User.fromAppwriteUser(appwrite.User user, {bool isAdmin = false}) {
     final isGuest = user.email.isEmpty;
     return User(
       id: user.$id,
@@ -32,6 +34,7 @@ class User {
       phone: user.phone.isNotEmpty ? user.phone : null,
       createdAt: DateTime.tryParse(user.$createdAt),
       isGuest: isGuest,
+      isAdmin: isAdmin,
     );
   }
 
@@ -46,6 +49,7 @@ class User {
           ? DateTime.tryParse(doc.data['createdAt'])
           : null,
       isGuest: doc.data['isGuest'] ?? false,
+      isAdmin: doc.data['isAdmin'] ?? false,
     );
   }
 
@@ -69,6 +73,7 @@ class User {
       'phone': phone,
       'createdAt': createdAt?.toIso8601String(),
       'isGuest': isGuest,
+      'isAdmin': isAdmin,
     };
   }
 
@@ -80,6 +85,7 @@ class User {
     String? phone,
     DateTime? createdAt,
     bool? isGuest,
+    bool? isAdmin,
   }) {
     return User(
       id: id ?? this.id,
@@ -88,6 +94,7 @@ class User {
       phone: phone ?? this.phone,
       createdAt: createdAt ?? this.createdAt,
       isGuest: isGuest ?? this.isGuest,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }

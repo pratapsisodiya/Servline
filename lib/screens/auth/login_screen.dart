@@ -394,7 +394,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+
+                    // Admin entry point
+                    TextButton(
+                      onPressed: () => context.push('/admin/signup'),
+                      child: Text(
+                        'Admin? Register here',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),

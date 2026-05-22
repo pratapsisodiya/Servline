@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:servline/core/config/appwrite_config.dart';
@@ -43,7 +44,7 @@ class TicketRepository {
           'tokenNumber': tokenNumber,
           'headCount': headCount,
           'currentQueuePosition': queuePosition,
-          'totalInQueue': queuePosition,
+          'totalInQueue': queuePosition, // includes self; backend should keep this updated
           'estimatedWaitMinutes': scheduledTime == null
               ? queuePosition * 5
               : 0,
@@ -225,9 +226,10 @@ class TicketRepository {
 
   /// Generate a token number
   String _generateTokenNumber() {
+    final suffix = Random().nextInt(900) + 100; // 100–999
     final now = DateTime.now();
-    final number = (now.hour * 1000 + now.minute * 100 + now.second) % 10000;
-    return number.toString().padLeft(4, '0');
+    final base = (now.millisecondsSinceEpoch ~/ 100) % 10000;
+    return '${base.toString().padLeft(4, '0')}-$suffix';
   }
 
   /// Get current queue position for a service
@@ -242,7 +244,11 @@ class TicketRepository {
         queries: [
           Query.equal('locationId', locationId),
           Query.equal('serviceId', serviceId),
-          Query.equal('status', TicketStatus.waiting.value),
+          Query.equal('status', [
+            TicketStatus.waiting.value,
+            TicketStatus.called.value,
+            TicketStatus.serving.value,
+          ]),
         ],
       );
 

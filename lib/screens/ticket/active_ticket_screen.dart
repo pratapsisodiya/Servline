@@ -297,7 +297,7 @@ class ActiveTicketScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Leave in 5 mins to reach by the time your number is called.',
+                                  _leaveMessage(ticket.estimatedWaitMinutes),
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.white.withValues(alpha: 0.9),
@@ -468,6 +468,12 @@ class ActiveTicketScreen extends ConsumerWidget {
               ),
             ),
     );
+  }
+
+  String _leaveMessage(int estimatedWaitMinutes) {
+    final leaveIn = (estimatedWaitMinutes - 5).clamp(0, estimatedWaitMinutes);
+    if (leaveIn == 0) return "Head to the waiting area now — your turn is very soon!";
+    return 'Leave in $leaveIn min${leaveIn == 1 ? '' : 's'} to arrive by the time your number is called.';
   }
 
   Widget _buildInfoItem(String value, String label) {

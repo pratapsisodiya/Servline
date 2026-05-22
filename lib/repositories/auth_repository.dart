@@ -12,6 +12,8 @@ class AuthRepository {
 
   AuthRepository(this._account, this._databases);
 
+  static const String _adminSecretCode = 'SERVLINE_ADMIN_2025';
+
   /// Create a new user account
   Future<User> createAccount({
     required String email,
@@ -90,13 +92,60 @@ class AuthRepository {
     }
   }
 
-  /// Get current logged in user
+  /// Get current logged in user (reads isAdmin from DB document)
   Future<User?> getCurrentUser() async {
     try {
-      final user = await _account.get();
-      return User.fromAppwriteUser(user);
+      final account = await _account.get();
+      bool isAdmin = false;
+      try {
+        final doc = await _databases.getDocument(
+          databaseId: AppwriteConfig.databaseId,
+          collectionId: AppwriteConfig.usersCollection,
+          documentId: account.$id,
+        );
+        isAdmin = doc.data['isAdmin'] ?? false;
+      } catch (_) {}
+      return User.fromAppwriteUser(account, isAdmin: isAdmin);
     } on AppwriteException {
       return null;
+    }
+  }
+
+  /// Create an admin account (requires secret code)
+  Future<User> createAdminAccount({
+    required String email,
+    required String password,
+    required String name,
+    required String secretCode,
+  }) async {
+    if (secretCode != _adminSecretCode) {
+      throw 'Invalid admin secret code.';
+    }
+    try {
+      final result = await _account.create(
+        userId: ID.unique(),
+        email: email,
+        password: password,
+        name: name,
+      );
+
+      await _databases.createDocument(
+        databaseId: AppwriteConfig.databaseId,
+        collectionId: AppwriteConfig.usersCollection,
+        documentId: result.$id,
+        data: {
+          'email': email,
+          'name': name,
+          'createdAt': DateTime.now().toIso8601String(),
+          'isGuest': false,
+          'isAdmin': true,
+        },
+      );
+
+      await login(email: email, password: password);
+      return User.fromAppwriteUser(result, isAdmin: true);
+    } on AppwriteException catch (e) {
+      throw _handleAppwriteException(e);
     }
   }
 
